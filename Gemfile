@@ -7,8 +7,6 @@ gem 'pry'
 
 gem 'oj'
 gem 'nokogiri'
-gem 'watir'
 gem 'phantomjs'
-# gem "chromedriver-helper"
 
 # https://github.com/stomita/heroku-buildpack-phantomjs

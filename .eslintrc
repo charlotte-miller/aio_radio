@@ -1,0 +1,10 @@
+{
+    "globals": {
+          "require": true,
+          "phantom": true,
+    },
+    "rules": {
+          "no-console": 0,
+          "no-debugger": 1,
+    }
+}
