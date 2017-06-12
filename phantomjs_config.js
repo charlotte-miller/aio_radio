@@ -35,16 +35,24 @@ if (system.args.length === 1) {
       console.log("FAIL to load the address");
       phantom.exit();
     } else {
-      window.setTimeout(function () {
-        page.render("click.png");
-        var media_link = page.evaluate(function () {
-          return (function () {
-            return document.getElementById("mediaplayer").getElementsByClassName("video")[0].src;
-          })();
-        });
-        console.log(media_link || "NO Media");
-        phantom.exit();
-      }, 2000);
+      var media_link,
+        attempts = 50,
+        finder = window.setInterval(function () {
+          media_link = page.evaluate(function () {
+            var video = document.getElementById("mediaplayer").getElementsByClassName("video");
+            if (video) {
+              return video[0].src.trim();
+            }
+          });
+
+          if (media_link || !(attempts-=1)) {
+            window.clearInterval(finder);
+            page.render("click.png");
+            console.log(media_link || "NO Media");
+            phantom.exit();
+          }
+        }, 100);
+
     }
   });
 }
