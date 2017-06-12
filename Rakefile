@@ -18,11 +18,11 @@ class DataBridge
   def self.get_episodes
     domain = 'http://www.focusonthefamily.com'
     page = Nokogiri::HTML(open(domain + '/media/adventures-in-odyssey'))
-    episodes = page.css('#latest-episode, .past_episodes--item.ng-scope')[0...2] #FIXME
+    episodes = page.css('#latest-episode, .past_episodes--item.hide-js')[0...7]
     episodes.collect do |episode|
-      page_link = episode.css('.latest_episode--title_link, .past_episode--href')[0]['href'].strip
-      media_link = Phantomjs.run('./phantomjs_config.js', (domain + page_link) )# { |line| puts line }
-      `open #{media_link}`
+      page_link = domain + episode.css('.latest_episode--title_link, .past_episode--href')[0]['href'].strip
+      media_link = Phantomjs.run('./phantomjs_config.js', (page_link) )# { |line| puts line }
+      # puts media_link
       {
         title: episode.css('.latest_episode--title, .past_episode--title').text.strip,
         link:  page_link,
