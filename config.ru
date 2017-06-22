@@ -1,4 +1,4 @@
 require './app'
 
-use Rack::ShowExceptions
+# use Rack::ShowExceptions
 run App.new

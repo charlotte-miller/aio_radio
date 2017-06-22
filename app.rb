@@ -1,6 +1,6 @@
 require 'rack'
 require 'dalli'
-require './memcached_config'
+require './config/memcached'
 
 class App
   def call(env)

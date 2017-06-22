@@ -3,5 +3,6 @@ CACHE = Dalli::Client.new((ENV["MEMCACHIER_SERVERS"] || "").split(","),
                      :password => ENV["MEMCACHIER_PASSWORD"],
                      :failover => true,
                      :socket_timeout => 1.5,
-                     :socket_failure_delay => 0.2
+                     :socket_failure_delay => 0.2,
+                     :pool_size => Integer(ENV['RAILS_MAX_THREADS'] || 5),
                     })
