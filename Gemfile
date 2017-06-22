@@ -6,6 +6,9 @@ gem 'thin'
 gem 'pry'
 
 gem 'oj'
+gem 'dalli'
+gem 'kgio'
+
 gem 'nokogiri'
 gem 'phantomjs'
 

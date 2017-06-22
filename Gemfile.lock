@@ -3,7 +3,9 @@ GEM
   specs:
     coderay (1.1.1)
     daemons (1.2.4)
+    dalli (2.7.6)
     eventmachine (1.2.3)
+    kgio (2.11.0)
     method_source (0.8.2)
     mini_portile2 (2.2.0)
     nokogiri (1.8.0)
@@ -26,6 +28,8 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
+  dalli
+  kgio
   nokogiri
   oj
   phantomjs
@@ -35,4 +39,4 @@ DEPENDENCIES
   thin
 
 BUNDLED WITH
-   1.14.6
+   1.15.0
