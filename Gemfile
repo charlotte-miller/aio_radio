@@ -1,3 +1,4 @@
+ruby '2.4.0'
 source "https://rubygems.org"
 
 gem 'rack'
@@ -5,6 +6,8 @@ gem 'puma'
 gem 'kgio'
 gem 'connection_pool'
 gem 'dalli'
+gem 'rack-favicon'
+
 gem 'rake',      require: false
 gem 'oj',        require: false
 gem 'nokogiri',  require: false

@@ -3,7 +3,7 @@ require 'open-uri'
 require 'nokogiri'
 require 'phantomjs'
 require 'oj'
-require 'pry'
+# require 'pry'
 
 namespace :update do
   desc "Update Episode Data"
