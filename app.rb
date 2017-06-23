@@ -6,6 +6,4 @@ class App
     CACHE.get('episodes') || CACHE.set('episodes', "HELLO RADIO")
     [200, {"Content-Type" => "text/json"}, [CACHE.get('episodes')]] #
   end
-
-
 end

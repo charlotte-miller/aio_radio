@@ -1,34 +1,38 @@
+require './config/memcached'
 require 'rake'
 require 'open-uri'
 require 'nokogiri'
 require 'phantomjs'
 require 'oj'
-# require 'pry'
+require 'pry'
 
-namespace :update do
-  desc "Update Episode Data"
-  task :episodes do
-    puts Oj.dump(DataBridge.get_episodes)
-  end
+desc "Update Episode Data"
+task :update_radio do
+  DataBridge.set_episodes
 end
 
 
 class DataBridge
+  class << self
+    def set_episodes
+      CACHE.set 'episodes', Oj.dump(get_episodes)
+    end
 
-  def self.get_episodes
-    domain = 'http://www.focusonthefamily.com'
-    page = Nokogiri::HTML(open(domain + '/media/adventures-in-odyssey'))
-    episodes = page.css('#latest-episode, .past_episodes--item.hide-js')[0...7]
-    episodes.collect do |episode|
-      page_link = domain + episode.css('.latest_episode--title_link, .past_episode--href')[0]['href'].strip
-      media_link = Phantomjs.run('./phantomjs_config.js', (page_link) )# { |line| puts line }
-      # puts media_link
-      {
-        title: episode.css('.latest_episode--title, .past_episode--title').text.strip,
-        link:  page_link,
-        media: media_link,
-        date: episode.css('.latest_episode--air_date, .past_episode--air_date').text.gsub(/^\D*/,'')
-      }
+    def get_episodes
+      domain = 'http://www.focusonthefamily.com'
+      page = Nokogiri::HTML(open(domain + '/media/adventures-in-odyssey'))
+      episodes = page.css('#latest-episode, .past_episodes--item.hide-js')[0...7]
+      episodes.collect do |episode|
+        page_link = domain + episode.css('.latest_episode--title_link, .past_episode--href')[0]['href'].strip
+        media_link = Phantomjs.run('./phantomjs_config.js', (page_link) )# { |line| puts line }
+        puts media_link
+        {
+          title: episode.css('.latest_episode--title, .past_episode--title').text.strip,
+          link:  page_link,
+          media: media_link,
+          date: episode.css('.latest_episode--air_date, .past_episode--air_date').text.gsub(/^\D*/,'')
+        }
+      end
     end
   end
 end
