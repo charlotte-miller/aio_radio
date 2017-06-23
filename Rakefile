@@ -4,7 +4,7 @@ require 'open-uri'
 require 'nokogiri'
 require 'phantomjs'
 require 'oj'
-require 'pry'
+require 'pry' if ENV['RACK_ENV']=='development'
 
 desc "Update Episode Data"
 task :update_radio do
