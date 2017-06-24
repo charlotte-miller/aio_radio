@@ -7,18 +7,18 @@ require 'phantomjs'
 require 'oj'
 require 'pry' unless ENV['RACK_ENV']=='production'
 
-desc "Reset CACHE"
-task :reset do
-  CACHE.set('episodes', '[]')
-end
+namespace :radio do
+  desc "Update Episode Data"
+  task :update do
+    # CACHE.set('episodes', '[]') if dev?
+    Episode.update_radio
+    `afplay /System/Library/Sounds/Glass.aiff` if dev?
+  end
 
-desc "Update Episode Data"
-task :update_radio do
-  # CACHE.set('episodes', '[]') if dev?
-  Episode.update_radio
-  `afplay /System/Library/Sounds/Glass.aiff` if dev?
+  desc "Reset CACHE"
+  task :reset => [:clear, :update]
+  task(:clear) { CACHE.set('episodes', '[]') }
 end
-
 
 class Episode
   def self.update_radio
