@@ -7,6 +7,11 @@ require 'phantomjs'
 require 'oj'
 require 'pry' unless ENV['RACK_ENV']=='production'
 
+desc "Reset CACHE"
+task :reset do
+  CACHE.set('episodes', '[]')
+end
+
 desc "Update Episode Data"
 task :update_radio do
   # CACHE.set('episodes', '[]') if dev?
