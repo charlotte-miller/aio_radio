@@ -47,7 +47,9 @@ if (system.args.length === 1) {
 
           if (media_link || !(attempts-=1)) {
             window.clearInterval(finder);
-            page.render("click.png");
+            if(system.args[2] === "development"){
+              page.render("click.png");
+            }
             console.log(media_link || "NO Media");
             phantom.exit();
           }

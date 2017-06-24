@@ -1,11 +1,12 @@
 require './config/memcached' #CACHE
 require './config/logger'    #LOGGER
+require './config/env'
 require 'rake'
 require 'open-uri'
 require 'nokogiri'
 require 'phantomjs'
 require 'oj'
-require 'pry' unless ENV['RACK_ENV']=='production'
+require 'pry' if development?
 
 namespace :radio do
   desc "Update Episode Data"
@@ -63,9 +64,8 @@ class Episode
         .first.attr('src').strip
 
       ep_media_link = nil
-      Phantomjs.run('./phantomjs_config.js', (episode_page_link) ) { |line| ep_media_link = line.strip }
+      Phantomjs.run('./phantom_video.js', episode_page_link, current_environment ) { |line| ep_media_link = line.strip }
       puts ep_media_link if dev?
-
 
       {
         id:    ep_id,
@@ -77,7 +77,4 @@ class Episode
       }
     end.compact
   end
-
 end
-
-def dev?; ENV['RACK_ENV']!='production' ;end

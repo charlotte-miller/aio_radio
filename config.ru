@@ -1,6 +1,7 @@
-require './app'
+require './config/env'
+require './server'
 require 'rack/favicon'
 
-use Rack::ShowExceptions
+use Rack::ShowExceptions if dev?
 use Rack::Favicon, image: "./favicon.ico"
-run App.new
+run Server.new
