@@ -63,7 +63,7 @@ class Episode
         .first.attr('src').strip
 
       ep_media_link = nil
-      Phantomjs.run('./phantomjs_config.js', (episode_page_link) ) { |line| ep_media_link = line }
+      Phantomjs.run('./phantomjs_config.js', (episode_page_link) ) { |line| ep_media_link = line.strip }
       puts ep_media_link if dev?
 
 
