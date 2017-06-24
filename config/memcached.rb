@@ -2,7 +2,7 @@ require 'kgio'
 require 'connection_pool'
 require 'dalli'
 
-CACHE = Dalli::Client.new((ENV["MEMCACHIER_SERVERS"] || "localhost:11211").split(","),
+CACHE ||= Dalli::Client.new((ENV["MEMCACHIER_SERVERS"] || "localhost:11211").split(","),
                     {:username => ENV["MEMCACHIER_USERNAME"],
                      :password => ENV["MEMCACHIER_PASSWORD"],
                      :failover => true,
