@@ -1,4 +1,5 @@
 require './adapters/episode'
+require 'alexa_generator'
 require 'rake'
 
 namespace :radio do
@@ -11,4 +12,8 @@ namespace :radio do
   desc "Reset CACHE"
   task :reset => [:clear, :update]
   task(:clear) { CACHE.set('episodes', '[]') }
+end
+
+namespace :alexa do
+  
 end

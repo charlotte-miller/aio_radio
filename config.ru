@@ -2,6 +2,6 @@ require './config/env'
 require './server'
 require 'rack/favicon'
 
-use Rack::ShowExceptions if dev?
 use Rack::Favicon, image: "./favicon.ico"
+use Rack::ShowExceptions if dev?
 run Server.new
