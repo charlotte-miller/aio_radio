@@ -1,7 +1,6 @@
 require './config/memcached'
 require 'alexa_rubykit'
 require 'oj'
-require 'pry'
 
 class AIORadioSkill
   attr_reader :input, :output, :response, :episode_cache_hash
