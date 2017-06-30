@@ -7,6 +7,7 @@ class AIORadioSkill
   attr_reader :input, :output, :response, :episode_cache_hash
 
   def initialize(post_body)
+    raise ArgumentError.new("Post Body must be valid JSON") if post_body == ''
     @input = AlexaRubykit.build_request(Oj.load(post_body))
     @output = AlexaRubykit::Response.new
     @episode_cache_hash = Oj.load CACHE.get('episodes')
