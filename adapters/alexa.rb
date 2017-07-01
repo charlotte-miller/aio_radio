@@ -36,11 +36,10 @@ private
     output.add_speech episode_cache_hash.first[:title]
   end
 
-  def play_episode(air_date=:current)
-    air_date = (Date.parse(air_date) - 1).to_s
+  def play_episode(air_date=nil)
+    air_date &&= (Date.parse(air_date) - 1).to_s
     episode_cache_hash_item = echi = \
-      (air_date == :current && episode_cache_hash.first) \
-      || episode_cache_hash.find {|ep| ep[:air_date]==air_date} \
+      episode_cache_hash.find {|ep| ep[:air_date]==air_date} \
       || episode_cache_hash.first
 
     output.add_session_attribute :current_episode_id, episode_cache_hash_item[:id]
