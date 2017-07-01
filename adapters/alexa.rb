@@ -15,7 +15,7 @@ class AIORadioSkill
   def build_response
     case input.type
     when "LAUNCH_REQUEST"
-      play_latest
+      play_episode
     when "INTENT_REQUEST"
       case input.name
         when "EpisodeTitle" then read_title
