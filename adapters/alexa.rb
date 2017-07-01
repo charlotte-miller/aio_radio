@@ -15,14 +15,12 @@ class AIORadioSkill
   def build_response
     case input.type
     when "LAUNCH_REQUEST"
-      # user talked to our skill but did not say something matching intent
-      output.add_speech "Say something see what happens."
+      play_latest
     when "INTENT_REQUEST"
       case input.name
-      when "EpisodeTitle" then read_title
-      when "PlayLatest"   then play_latest
-        # given = input.slots["Generic"].value
-        # message = "You said, #{given}."
+        when "EpisodeTitle" then read_title
+        when "PlayLatest"   then play_episode
+        when "PlayDate"     then play_episode input.slots["AMAZON.DATE"]["value"]
       end
     when "SESSION_ENDED_REQUEST"
       # it's over
@@ -31,32 +29,18 @@ class AIORadioSkill
     @response = output.build_response(session_end = true) #returns json
   end
 
+private
+
   def read_title
     # TODO, currently playing
     output.add_speech episode_cache_hash.first[:title]
   end
 
-  def play_latest
-    play_episode
-  end
-
-  def play_date(date)
-    play_episode date_to_episode_id(date)
-  end
-
-  def say_hello
-    output.add_speech('hello world')
-  end
-
-private
-  def date_to_episode_id
-
-  end
-
-  def play_episode(episode_id=:current)
+  def play_episode(air_date=:current)
+    air_date = (Date.parse(air_date) - 1).to_s
     episode_cache_hash_item = echi = \
-      (episode_id == :current && episode_cache_hash.first) \
-      || episode_cache_hash.find {|item| item[:id]==episode_id} \
+      (air_date == :current && episode_cache_hash.first) \
+      || episode_cache_hash.find {|ep| ep[:air_date]==air_date} \
       || episode_cache_hash.first
 
     output.add_session_attribute :current_episode_id, episode_cache_hash_item[:id]

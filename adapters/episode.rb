@@ -56,7 +56,7 @@ class Episode
       ep_air_date = episode
         .css('.latest_episode--air_date, .past_episode--air_date')
         .text.gsub(/^\D*/,'')
-
+      ep_air_date &&= Date.strptime(ep_air_date, "%m/%d/%Y").to_s
       {
         id:    ep_id,
         title: ep_title,
