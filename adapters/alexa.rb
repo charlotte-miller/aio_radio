@@ -39,7 +39,10 @@ class OdysseyRadioSkillController
         when /^AMAZON/      then handle_amazon
         when "EpisodeTitle" then read_title
         when "PlayLatest"   then play_episode
-        when "ListEpisodes" then list_episodes(:silent)
+        when "ListEpisodes" then
+          list_episodes(:silent)
+          output.add_speech "Check the Alexa app for a complete episode list."
+        when 'PlayById'     then play_episode input.slots["episodeId"]["value"].to_i, 0
       end
 
     when "AudioPlayer.PlaybackNearlyFinished" then
@@ -127,28 +130,28 @@ private
 
   # accepts episode_id, nil (for current_episode)
   def play_episode(episode_id=nil, offsetInMilliseconds=nil)
-    episode_id ||= user.current_episode.id
-    offsetInMilliseconds ||= user.current_offset
+    episode_id ? user.current_episode_id =  episode_id : episode_id = user.current_episode.id
+    offsetInMilliseconds ? user.current_offset= offsetInMilliseconds : offsetInMilliseconds= user.current_offset
 
-    eci = episodes_cache.find {|ep| ep.id==episode_id}
+    ep_item = episodes_cache.find {|ep| ep.id==episode_id}
 
     if user.remaining_episode_count > 1
       text = "#{user.remaining_episode_count} NEW Episodes\nSay 'Alexa, Next' to explore.\nOr 'Alexa, Ask Odyssey Radio for an Episode List'"
     elsif user.remaining_episode_count == 1
       text = "1 NEW Episode: #{user.next_episode.title.gsub(/Episode \d+:/,'')}.\n\nSay 'Alexa, Next' to listen"
     else
-      text = "No More Episodes.\nSay 'Alexa, Previous' to re-listen to your favorites.\nNEW Episodes Every Week"
+      text = "Last Episode.\nSay 'Alexa, Previous' to re-listen to your favorites.\nNEW Episodes Every Week"
     end
 
-    user.current_episode_id= eci.id
-    output.add_audio_url eci.media, "episode-#{eci.id}", (offsetInMilliseconds || 0)
+    user.current_episode_id= ep_item.id
+    output.add_audio_url ep_item.media, "episode-#{ep_item.id}", offsetInMilliseconds
     output.add_hash_card( {
       :type => "Standard",
-      :title => eci.title.sub('Episode ',''),
-      :text => text, #"\n\n#{eci[:link]}",
+      :title => ep_item.title.sub('Episode ',''),
+      :text => text, #"\n\n#{ep_item[:link]}",
       :image => {
-        :smallImageUrl => eci.image,
-        :largeImageUrl => eci.image
+        :smallImageUrl => ep_item.image,
+        :largeImageUrl => ep_item.image
       }
     })
   end
