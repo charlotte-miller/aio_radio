@@ -4,8 +4,6 @@ require './config/env'
 require 'open-uri'
 require 'nokogiri'
 require 'phantomjs'
-require 'oj'
-require 'pry' if development?
 
 class Episode
   def self.update_radio
@@ -57,6 +55,7 @@ class Episode
         .css('.latest_episode--air_date, .past_episode--air_date')
         .text.gsub(/^\D*/,'')
       ep_air_date &&= Date.strptime(ep_air_date, "%m/%d/%Y").to_s
+
       {
         id:    ep_id,
         title: ep_title,
@@ -65,6 +64,6 @@ class Episode
         image: ep_image_link,
         air_date: ep_air_date
       }
-    end.compact
+    end.compact.sort {|ep| Date.parse(ep[:air_date])}
   end
 end

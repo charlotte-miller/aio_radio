@@ -1,6 +1,9 @@
 require 'kgio'
 require 'connection_pool'
 require 'dalli'
+require 'date'
+require 'oj'
+
 
 CACHE ||= Dalli::Client.new((ENV["MEMCACHIER_SERVERS"] || "localhost:11211").split(","),
                     {:username => ENV["MEMCACHIER_USERNAME"],

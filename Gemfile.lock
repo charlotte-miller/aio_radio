@@ -1,10 +1,15 @@
+GIT
+  remote: git@github.com:chip-miller/alexa-rubykit.git
+  revision: 485d7e435c2944f7a468cd46bb00419d4b0cc0a6
+  specs:
+    alexa_rubykit (1.3.0)
+      bundler (~> 1.7)
+      rake
+
 GEM
   remote: https://rubygems.org/
   specs:
     alexa_generator (0.3.2)
-    alexa_rubykit (1.3.0)
-      bundler (~> 1.7)
-      rake
     coderay (1.1.1)
     connection_pool (2.2.1)
     daemons (1.2.4)
@@ -36,7 +41,7 @@ PLATFORMS
 
 DEPENDENCIES
   alexa_generator
-  alexa_rubykit
+  alexa_rubykit!
   connection_pool
   dalli
   kgio

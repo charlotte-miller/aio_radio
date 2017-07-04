@@ -9,15 +9,13 @@ gem 'dalli'
 gem 'rack-favicon'
 gem 'alexa_generator'
 
-gem 'rake',                     require: false
-gem 'oj',                       require: false
-gem 'nokogiri',                 require: false
-gem 'phantomjs',                require: false
-gem 'alexa_rubykit',            require: false
+gem 'rake',          require: false
+gem 'oj',            require: false
+gem 'nokogiri',      require: false
+gem 'phantomjs',     require: false  #PLUS a buildpack for Heroku: https://github.com/stomita/heroku-buildpack-phantomjs
+gem 'alexa_rubykit', require: false,  git:'git@github.com:chip-miller/alexa-rubykit.git'
 
 group 'development' do
   gem 'thin'
   gem 'pry'
 end
-
-# https://github.com/stomita/heroku-buildpack-phantomjs

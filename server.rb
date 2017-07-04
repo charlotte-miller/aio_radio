@@ -1,4 +1,5 @@
 require 'rack'
+require './config/env'
 require './config/memcached'
 require './adapters/alexa'
 
@@ -6,9 +7,10 @@ class Server
   def call(env)
     begin
       post_body = env['rack.input'].read
-      skill = AIORadioSkill.new(post_body)
+      skill = OdysseyRadioSkillController.new(post_body)
       reply = skill.build_response
     rescue => e
+      raise e if dev?
       reply = Oj.dump([
         error: e.message,
         # backtrace: e.backtrace,
