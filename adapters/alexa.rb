@@ -21,6 +21,7 @@ class OdysseyRadioSkillController
 
     @output = AlexaRubykit::Response.new
     @episodes_cache = Oj.load( CACHE.get('episodes') )
+      .map {|ep| OpenStruct.new(ep)}
   end
 
   def build_response
@@ -47,15 +48,30 @@ private
 
   def handle_amazon
     case input.name
-      when /^AMAZON\.(Pause|Stop|Cancel)Intent/ then
+      when /^AMAZON\.(Pause|Stop)Intent/ then
         output.add_audio_stop
-        # when 'AMAZON.CancelIntent' then output.add_audio_stop
+      when 'AMAZON.CancelIntent' then
+        output.add_audio_stop
+        user.current_offset=0 #FIXME currently gets overwritten by the ResumeIntent
       when 'AMAZON.ResumeIntent' then
         play_episode user.current_episode.id, user.current_offset
       when 'AMAZON.StartOverIntent' then
         play_episode user.current_episode.id, 0
+        # play_episode episodes_cache.first.id, 0
       when 'AMAZON.HelpIntent' then
         read_help
+      when 'AMAZON.NextIntent' then
+        if user.next_episode
+          play_episode user.next_episode.id
+        else
+          output.add_speech "There are no more episodes. Check back tomorrow."
+        end
+      when 'AMAZON.PreviousIntent' then
+        if user.prev_episode
+          play_episode user.prev_episode.id
+        else
+          output.add_speech "That's as far back as I can go."
+        end
     end
   end
 
@@ -71,21 +87,21 @@ private
   # accepts episode_id, air_date, nil (for current_episode)
   def play_episode(air_date=nil, offsetInMilliseconds=0)
     (air_date = (Date.parse(air_date) - 1).to_s) if air_date.is_a? String
-    (air_date = episodes_cache.find {|ep| ep[:id]==air_date}[:air_date]) if air_date.is_a? Integer
+    (air_date = episodes_cache.find {|ep| ep.id==air_date}[:air_date]) if air_date.is_a? Integer
 
-    episodes_cache_item = echi = \
-      episodes_cache.find {|ep| ep[:air_date]==air_date} \
+    episodes_cache_item = eci = \
+      episodes_cache.find {|ep| ep.air_date==air_date} \
       || episodes_cache.first
 
-    user.current_episode_id= echi[:id]
-    output.add_audio_url echi[:media], "episode-#{echi[:id]}", (offsetInMilliseconds || 0)
+    user.current_episode_id= eci.id
+    output.add_audio_url eci.media, "episode-#{eci.id}", (offsetInMilliseconds || 0)
     output.add_hash_card( {
       :type => "Standard",
-      :title => echi[:title].sub('Episode ',''),
-      :text => "Find more episodes online!", #"\n\n#{echi[:link]}",
+      :title => eci.title.sub('Episode ',''),
+      :text => "Find more episodes online!", #"\n\n#{eci[:link]}",
       :image => {
-        :smallImageUrl => echi[:image],
-        :largeImageUrl => echi[:image]
+        :smallImageUrl => eci.image,
+        :largeImageUrl => eci.image
       }
     })
   end
