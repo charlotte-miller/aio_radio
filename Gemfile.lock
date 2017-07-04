@@ -1,5 +1,5 @@
 GIT
-  remote: git@github.com:chip-miller/alexa-rubykit.git
+  remote: git://github.com/chip-miller/alexa-rubykit.git
   revision: 485d7e435c2944f7a468cd46bb00419d4b0cc0a6
   specs:
     alexa_rubykit (1.3.0)

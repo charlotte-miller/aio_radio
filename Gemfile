@@ -13,7 +13,7 @@ gem 'rake',          require: false
 gem 'oj',            require: false
 gem 'nokogiri',      require: false
 gem 'phantomjs',     require: false  #PLUS a buildpack for Heroku: https://github.com/stomita/heroku-buildpack-phantomjs
-gem 'alexa_rubykit', require: false,  git:'git@github.com:chip-miller/alexa-rubykit.git'
+gem 'alexa_rubykit', require: false,  github:'chip-miller/alexa-rubykit'
 
 group 'development' do
   gem 'thin'
