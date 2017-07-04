@@ -8,7 +8,7 @@ class Server
     begin
       post_body = env['rack.input'].read
       skill = OdysseyRadioSkillController.new(post_body)
-      reply = skill.build_response
+      reply = skill.respond
     rescue => e
       raise e if dev?
       reply = Oj.dump([

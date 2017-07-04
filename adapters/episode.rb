@@ -64,6 +64,6 @@ class Episode
         image: ep_image_link,
         air_date: ep_air_date
       }
-    end.compact.sort {|ep| Date.parse(ep[:air_date])}
+    end.compact.sort_by {|ep| Date.parse(ep[:air_date])}
   end
 end
