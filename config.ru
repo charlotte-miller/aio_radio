@@ -16,9 +16,6 @@ end
 use Rack::ReverseProxy do
   # Forward the path /test* to http://example.com/test*
   reverse_proxy '/media', 'https://store.focusonthefamily.com/'
-
-  # Forward the path /foo/* to http://example.com/bar/*
-  # reverse_proxy /^\/foo(\/.*)$/, 'http://example.com/bar$1', username: 'name', password: 'basic_auth_secret'
 end
 
 use Rack::Favicon, image: "./favicon.ico"
