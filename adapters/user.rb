@@ -1,6 +1,6 @@
 require './config/env'
 
-class User
+class UserSession
   attr_reader :cache_key, :episodes_cache, :new_user
 
   def self.from_request_obj(input_obj)
@@ -31,51 +31,42 @@ class User
   end
 
   def current_episode
-    episodes_cache.find {|ep| ep.id==current_episode_id} \
-    || episodes_cache.first
+    found = episodes_cache.find {|ep| ep.id==current_episode_id}
+    found ||= self.current_episode = episodes_cache.first
+    found
   end
 
-  def random_episode
-    (episodes_cache - [current_episode]).sample
-  end
+  def current_episode=(episode)
+    episode_id = episode      if episode.is_a? Integer
+    episode_id = episode.to_i if episode.is_a? String
+    episode_id = episode.id   if episode.is_a? OpenStruct
+    episode_id = episode[:id] if episode.is_a? Hash
 
-  def next_episode
-    traverse_episode_list(1)
-  end
-
-  def next_episode!
     update_user_record({
-      current_episode_id: next_episode.id,
+      current_episode_id: episode_id,
       current_offset: 0
     })
     current_episode
   end
 
-  def prev_episode
-    traverse_episode_list(-1)
-  end
+  def random_episode; (episodes_cache - [current_episode]).sample ;end
 
-  def prev_episode!
-    update_user_record({
-      current_episode_id: prev_episode.id,
-      current_offset: 0
-    })
-    current_episode
-  end
+  def next_episode  ;traverse_episode_list(1)           ;end
+  def prev_episode  ;traverse_episode_list(-1)          ;end                                                   ;
+
+  def next_episode! ;self.current_episode= next_episode ;end
+  def prev_episode! ;self.current_episode= prev_episode ;end
 
   def remaining_episode_count
     current_index = episodes_cache.index current_episode
     episodes_cache.length - 1 - current_index
   end
 
-  def current_episode_id; data[:current_episode_id].to_i ;end
-  def current_episode_id=(val)
-    update_user_record(current_episode_id:val)
-  end
+  def current_episode_id; (data[:current_episode_id]).to_i  ;end
+  def current_offset;     (data[:current_offset] || 0).to_i ;end
 
-  def current_offset; (data[:current_offset] || 0).to_i ;end
-  def current_offset=(val)
-    update_user_record(current_offset:val)
+  def current_offset=(offsetInMilliseconds)
+    update_user_record(current_offset:offsetInMilliseconds)
   end
 
   def looping?
@@ -86,6 +77,16 @@ class User
     update_user_record(looping:is)
   end
 
+  def reset!
+    CACHE.set(cache_key, '{}', 432000)
+  end
+
+private
+
+  def data
+    Oj.load( CACHE.get(cache_key) || '{}' )
+  end
+
   def update_user_record(overrides = {})
     updates = data.merge overrides
     return if data == updates
@@ -93,16 +94,6 @@ class User
     LOGGER.info updates
     CACHE.set(cache_key, Oj.dump(updates), 432000) #5.days
   end
-
-  def reset!
-    CACHE.set(cache_key, '{}', 432000)
-  end
-
-  def data
-    Oj.load( CACHE.get(cache_key) || '{}' )
-  end
-
-private
 
   def traverse_episode_list(direction=1) #-1
     episode_ids = episodes_cache.map(&:id)

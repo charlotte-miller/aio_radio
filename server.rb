@@ -10,7 +10,7 @@ class Server
       skill = OdysseyRadioSkillController.new(post_body)
       reply = skill.respond
     rescue => e
-      raise e if dev?
+      raise e if dev? && e.message!='Post Body must be valid JSON'
       reply = Oj.dump([
         error: e.message,
         # backtrace: e.backtrace,
