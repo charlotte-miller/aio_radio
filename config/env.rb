@@ -10,4 +10,12 @@ def dev?
 end
 alias :development? :dev?
 
+def env_domain
+  if dev?
+    'http://localhost:9292'
+  else
+    'https://aio-radio.herokuapp.com'
+  end
+end
+
 require 'pry' if development?

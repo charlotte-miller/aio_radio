@@ -1,5 +1,4 @@
 require './adapters/episode'
-require 'alexa_generator'
 require 'rake'
 
 namespace :radio do
@@ -15,5 +14,4 @@ namespace :radio do
 end
 
 namespace :alexa do
-  
 end

@@ -1,5 +1,5 @@
 ruby '2.4.0'
-source "https://rubygems.org"
+source 'https://rubygems.org'
 
 gem 'rack'
 gem 'puma'
@@ -7,7 +7,8 @@ gem 'kgio'
 gem 'connection_pool'
 gem 'dalli'
 gem 'rack-favicon'
-gem 'alexa_generator'
+gem 'rack-reverse-proxy'
+gem 'rack-cors'
 
 gem 'rake',          require: false
 gem 'oj',            require: false

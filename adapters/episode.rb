@@ -46,6 +46,7 @@ class Episode
       ep_image_link = Nokogiri::HTML(open(ep_store_link))
         .css('img#image-main')
         .first.attr('src').strip
+        .sub('https://store.focusonthefamily.com', env_domain)
 
       ep_media_link = nil
       Phantomjs.run('./adapters/video_player.js', episode_page_link, current_environment ) { |line| ep_media_link = line.strip }
