@@ -46,10 +46,13 @@ class OdysseyRadioSkillController
       end
 
     when "AudioPlayer.PlaybackNearlyFinished" then
+      LOGGER.info input.type
       if user_session.looping?
         # enque user_session.current_episode
       end
-    when "AudioPlayer.PlaybackFinished" then user_session.next_episode!
+    when "AudioPlayer.PlaybackFinished" then
+      LOGGER.info input.type
+      user_session.next_episode!
 
     when /^AudioPlayer/ then LOGGER.info input.type
 
