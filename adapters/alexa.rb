@@ -73,7 +73,7 @@ private
 
       when 'AMAZON.HelpIntent' then
         list_episodes(:silently)
-        output.add_speech "Welcome to Odyssey Radio! There are #{episodes_cache.length} episodes to explore. Navigate using 'Next, and Previous'. For more info: Check the Alexa app for a list of today's episodes. New episodes are added daily."
+        output.add_speech( "Welcome to Odyssey Radio! There are #{episodes_cache.length} episodes to explore. Navigate using Next and Previous. For more info: Check the Alexa app for a list of today's episodes. New episodes are added daily.")
 
       when 'AMAZON.NextIntent' then
         if user.next_episode
@@ -91,6 +91,11 @@ private
           output.add_speech "That's as far back as I can go."
         end
 
+      when 'AMAZON.ShuffleOnIntent' then
+        random = user.random_episode
+        output.add_speech "Shuffling Episodes... Playing #{random.title}"
+        play_episode random.id, 0
+
       when 'AMAZON.LoopOnIntent' then
         #continuous play
 
@@ -103,19 +108,18 @@ private
     output.add_speech user.current_episode.title
   end
 
-
   def read_episode_loading
     action = user.current_offset==0 ? 'Starting' : 'Resuming'
     output.add_speech "#{action} episode"
   end
 
   def list_episodes(silent=false)
-    text = "Alexa, Ask Odyssey Radio to play episode #{user.current_episode_id}\n-\n"+ \
+    text = "Alexa, Ask Odyssey Radio to play episode '#{user.current_episode_id}'\n \n"+ \
       (episodes_cache.map {|ep| ep.title.gsub!('Episode ',''); ep}
       .map {|ep| ep.title = "- #{ep.title}" ;ep}
       .map {|ep| ep.id != user.current_episode_id ? ep.title : ep.title.gsub!(/^- \d+/, '▸ Playing'); ep}
       .map(&:title)
-      .join("\n"))
+      .join("\n")+"\n \nSay 'Alexa Shuffle' for a random episode")
     output.add_speech("Check the Alexa app for available episodes, or say 'Next' to explore.") unless silent
     output.add_hash_card( {
       :type => "Standard",

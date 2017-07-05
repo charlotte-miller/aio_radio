@@ -35,6 +35,10 @@ class User
     || episodes_cache.first
   end
 
+  def random_episode
+    (episodes_cache - [current_episode]).sample
+  end
+
   def next_episode
     traverse_episode_list(1)
   end
