@@ -42,11 +42,17 @@ class OdysseyRadioSkillController
         when "ListEpisodes" then
           list_episodes(:silent)
           output.add_speech "Check the Alexa app for a complete episode list."
-        when 'PlayById'     then play_episode input.slots["episodeId"]["value"].to_i, 0
+
+        when 'PlayById'     then
+          play_episode input.slots["episodeId"]["value"].to_i, 0
+          list_episodes(:silent) #overrides player card for menu effect
       end
 
     when "AudioPlayer.PlaybackNearlyFinished" then
-      user.next_episode!
+      if user.looping?
+        # enque user.current_episode
+      end
+    when "AudioPlayer.PlaybackFinished" then user.next_episode!
 
     when /^AudioPlayer/ then LOGGER.info input.type
 
@@ -97,10 +103,12 @@ private
         play_episode random.id, 0
 
       when 'AMAZON.LoopOnIntent' then
-        #continuous play
+        user.loop!
+        output.add_speech "Continuous play enabled"
 
       when 'AMAZON.LoopOffIntent' then
-        #single episode [default]
+        user.loop!(false) #single episode [default]
+        output.add_speech "Continuous play disabled"
     end
   end
 
@@ -114,12 +122,12 @@ private
   end
 
   def list_episodes(silent=false)
-    text = "Alexa, Ask Odyssey Radio to play episode '#{user.current_episode_id}'\n \n"+ \
+    text = "Choose by Episode Number\nTRY: Alexa, Ask Odyssey Radio to play '#{user.random_episode.id}'\n \n"+ \
       (episodes_cache.map {|ep| ep.title.gsub!('Episode ',''); ep}
       .map {|ep| ep.title = "- #{ep.title}" ;ep}
       .map {|ep| ep.id != user.current_episode_id ? ep.title : ep.title.gsub!(/^- \d+/, '▸ Playing'); ep}
       .map(&:title)
-      .join("\n")+"\n \nSay 'Alexa Shuffle' for a random episode")
+      .join("\n")+"\n \nSay 'Alexa Shuffle' for a random episode\nSay 'Alexa Loop' for continuous play.")
     output.add_speech("Check the Alexa app for available episodes, or say 'Next' to explore.") unless silent
     output.add_hash_card( {
       :type => "Standard",
@@ -140,7 +148,7 @@ private
     ep_item = episodes_cache.find {|ep| ep.id==episode_id}
 
     if user.remaining_episode_count > 1
-      text = "#{user.remaining_episode_count} NEW Episodes\nSay 'Alexa, Next' to explore.\nOr 'Alexa, Ask Odyssey Radio for an Episode List'"
+      text = "#{user.remaining_episode_count} NEW Episodes\nSay 'Alexa, Next' to explore.\nOr 'Alexa, open the Odyssey Radio episode list'"
     elsif user.remaining_episode_count == 1
       text = "1 NEW Episode: #{user.next_episode.title.gsub(/Episode \d+:/,'')}.\n\nSay 'Alexa, Next' to listen"
     else

@@ -78,6 +78,14 @@ class User
     update_user_record(current_offset:val)
   end
 
+  def looping?
+    !!data[:looping]
+  end
+
+  def loop!(is=true)
+    update_user_record(looping:is)
+  end
+
   def update_user_record(overrides = {})
     updates = data.merge overrides
     return if data == updates
