@@ -1,7 +1,7 @@
 require './config/env'
 
 class UserSession
-  attr_reader :cache_key, :episodes_cache, :new_user
+  attr_reader :cache_key, :new_user
 
   def self.from_request_obj(input_obj)
     me = new(input_obj.session.user_id)
@@ -25,8 +25,6 @@ class UserSession
 
   def initialize(amazon_userId)
     @cache_key = "user_#{amazon_userId}"
-    @episodes_cache = Oj.load( CACHE.get('episodes') || '[]')
-      .map {|ep| OpenStruct.new(ep)}
     @new_user ||= self.data.empty?
   end
 
@@ -79,6 +77,11 @@ class UserSession
 
   def reset!
     CACHE.set(cache_key, '{}', 432000)
+  end
+
+  def episodes_cache
+    @episodes_cache ||= Oj.load( CACHE.get('episodes') || '[]')
+      .map {|ep| OpenStruct.new(ep)}
   end
 
 private

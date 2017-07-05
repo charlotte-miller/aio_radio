@@ -5,7 +5,7 @@ require './adapters/user_session'
 require 'alexa_rubykit'
 
 class OdysseyRadioSkillController
-  attr_reader :input, :output, :response, :episodes_cache, :user_session
+  attr_reader :input, :output, :response, :user_session
 
   def initialize(post_body)
     raise ArgumentError.new("Post Body must be valid JSON") if post_body == ''
@@ -18,10 +18,7 @@ class OdysseyRadioSkillController
       @input ||= OpenStruct.new(type:post_body.dig('request','type'))
       @user_session = User.from_player_callback(post_body)
     end
-
     @output = AlexaRubykit::Response.new
-    @episodes_cache = Oj.load( CACHE.get('episodes') || '[]' )
-      .map {|ep| OpenStruct.new(ep)}
   end
 
   def respond
@@ -78,7 +75,7 @@ private
 
       when 'AMAZON.HelpIntent' then
         list_episodes(:silently)
-        output.add_speech( "Welcome to Odyssey Radio! There are #{episodes_cache.length} episodes to explore. Navigate using Next and Previous. For more info: Check the Alexa app for a list of today's episodes. New episodes are added daily.")
+        output.add_speech( "Welcome to Odyssey Radio! There are #{user_session.episodes_cache.length} episodes to explore. Navigate using Next and Previous. For more info: Check the Alexa app for a list of today's episodes. New episodes are added daily.")
 
       when 'AMAZON.NextIntent' then
         if user_session.next_episode
@@ -123,7 +120,7 @@ private
 
   def list_episodes(silent=false)
     text = "Choose by Episode Number\nTRY: Alexa, Ask Odyssey Radio to play '#{user_session.random_episode.id}'\n \n"+ \
-      (episodes_cache.map {|ep| ep.title.gsub!('Episode ',''); ep}
+      (user_session.episodes_cache.map {|ep| ep.title.gsub!('Episode ',''); ep}
       .map {|ep| ep.title = "- #{ep.title}" ;ep}
       .map {|ep| ep.id != user_session.current_episode_id ? ep.title : ep.title.gsub!(/^- \d+/, '▸ Playing'); ep}
       .map(&:title)
@@ -134,7 +131,7 @@ private
       :title => "Episode List",
       :text => text,
       :image => {
-        :smallImageUrl => user_session.current_episode.image, #"#{domain}/images/odyssey_logo_720_480.jpg",
+        :smallImageUrl => user_session.current_episode.image,
         :largeImageUrl => user_session.current_episode.image
       }
     })
