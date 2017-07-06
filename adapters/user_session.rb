@@ -6,7 +6,7 @@ class UserSession
   def self.from_request_obj(input_obj)
     me = new(input_obj.session.user_id)
     player = input_obj.json.dig('context', 'AudioPlayer')
-    player && me.update_user_record({
+    player && me.send( :update_user_record, {
       current_offset: (player['offsetInMilliseconds'] || 0),
       current_episode_id: (player['token']||'').gsub(/\D/,'')
     })
@@ -16,7 +16,7 @@ class UserSession
   def self.from_player_callback(post_body)
     me = new(post_body.dig('context','System','user','userId'))
     player = post_body.dig('context', 'AudioPlayer')
-    player && me.update_user_record({
+    player && me.send( :update_user_record, {
       current_offset: (player['offsetInMilliseconds'] || 0),
       current_episode_id: player['token'].gsub(/\D/,'')
     })
@@ -25,7 +25,7 @@ class UserSession
 
   def initialize(amazon_userId)
     @cache_key = "user_#{amazon_userId}"
-    @new_user ||= self.data.empty?
+    @new_user ||= self.send(:data).empty?
   end
 
   def current_episode
