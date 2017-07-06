@@ -13,10 +13,10 @@ class OdysseyRadioSkillController
 
     if AlexaRubykit.valid_alexa? post_body
       @input = AlexaRubykit.build_request(post_body)
-      @user_session = User.from_request_obj(input)
+      @user_session = UserSession.from_request_obj(input)
     else
       @input ||= OpenStruct.new(type:post_body.dig('request','type'))
-      @user_session = User.from_player_callback(post_body)
+      @user_session = UserSession.from_player_callback(post_body)
     end
     @output = AlexaRubykit::Response.new
   end
