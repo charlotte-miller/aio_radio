@@ -3,23 +3,31 @@ require './config/env'
 class UserSession
   attr_reader :cache_key, :new_user
 
-  def self.from_request_obj(input_obj)
-    me = new(input_obj.session.user_id)
-    player = input_obj.json.dig('context', 'AudioPlayer')
-    player && me.send( :update_user_record, {
-      current_offset: (player['offsetInMilliseconds'] || 0),
-      current_episode_id: (player['token']||'').gsub(/\D/,'')
-    })
-    return me
-  end
+  def self.from_post(post_body_hash)
+    user_id = unless post_body_hash['session'].nil?
+      post_body_hash.dig('session','user_id')
+    else
+      post_body_hash.dig('context','System','user','userId')
+    end
 
-  def self.from_player_callback(post_body)
-    me = new(post_body.dig('context','System','user','userId'))
-    player = post_body.dig('context', 'AudioPlayer')
-    player && me.send( :update_user_record, {
-      current_offset: (player['offsetInMilliseconds'] || 0),
-      current_episode_id: player['token'].gsub(/\D/,'')
-    })
+    me = new(user_id)
+    player = post_body_hash.dig('context', 'AudioPlayer')
+    proposed_offset, proposed_episode_id = [
+      (player['offsetInMilliseconds'].to_i || 0),
+      player['token'].gsub(/\D/,'').to_i
+    ]
+
+    same_episode = me.current_episode_id == proposed_episode_id
+    same_offset =  me.current_offset == proposed_offset
+
+    unless same_episode && same_offset
+      unless same_episode
+        me.current_episode= proposed_episode_id
+      else
+        me.current_offset= proposed_offset
+      end
+    end
+
     return me
   end
 

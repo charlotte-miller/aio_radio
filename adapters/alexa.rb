@@ -9,14 +9,13 @@ class OdysseyRadioSkillController
 
   def initialize(post_body)
     raise ArgumentError.new("Post Body must be valid JSON") if post_body == ''
-    post_body = Oj.load(post_body) if post_body.is_a? String
+    post_body_hash = Oj.load(post_body) if post_body.is_a? String
+    @user_session = UserSession.from_post post_body_hash
 
-    if AlexaRubykit.valid_alexa? post_body
-      @input = AlexaRubykit.build_request(post_body)
-      @user_session = UserSession.from_request_obj(input)
+    if AlexaRubykit.valid_alexa? post_body_hash
+      @input = AlexaRubykit.build_request(post_body_hash)
     else
-      @input ||= OpenStruct.new(type:post_body.dig('request','type'))
-      @user_session = UserSession.from_player_callback(post_body)
+      @input ||= OpenStruct.new(type:post_body_hash.dig('request','type'))
     end
     @output = AlexaRubykit::Response.new
   end
@@ -155,7 +154,6 @@ private
       text = "Last Episode.\nSay 'Alexa, Previous' to re-listen to your favorites.\nNEW Episodes Every Week"
     end
 
-    user_session.current_episode= ep_item
     output.add_audio_url ep_item.media, "episode-#{ep_item.id}", user_session.current_offset
     output.add_hash_card( {
       :type => "Standard",
