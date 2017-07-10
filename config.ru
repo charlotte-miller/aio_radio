@@ -1,5 +1,4 @@
 require './config/env'
-require 'rack/favicon'
 require 'rack/cors'
 require 'rack/reverse_proxy'
 require './server'
@@ -18,6 +17,5 @@ use Rack::ReverseProxy do
   reverse_proxy '/media', 'https://store.focusonthefamily.com/'
 end
 
-use Rack::Favicon, image: "./favicon.ico"
 # use Rack::Static, :urls => ["/images"]
 run Server.new

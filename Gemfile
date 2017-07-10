@@ -6,7 +6,6 @@ gem 'puma'
 gem 'kgio'
 gem 'connection_pool'
 gem 'dalli'
-gem 'rack-favicon'
 gem 'rack-reverse-proxy'
 gem 'rack-cors'
 
@@ -19,4 +18,5 @@ gem 'alexa_rubykit', require: false,  github:'chip-miller/alexa-rubykit'
 group 'development' do
   gem 'thin'
   gem 'pry'
+  gem 'rspec'
 end

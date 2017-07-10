@@ -17,6 +17,6 @@ class Server
         data: Oj.load( CACHE.get('episodes') || '[]'),
       ])
     end
-    [200, {"Content-Type" => "text/json"}, [reply]] #
+    [200, {"Content-Type" => "text/json"}, [reply]]
   end
 end

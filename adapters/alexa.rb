@@ -122,7 +122,7 @@ private
   end
 
   def list_episodes(silent=false)
-    text = "Choose by Episode Number\nTRY: Alexa, Ask Odyssey Radio to play '#{user_session.random_episode.id}'\n \n"+ \
+    text = "Choose by Episode Number\nTRY: Alexa, Ask Odyssey to play '#{user_session.random_episode.id}'\n \n"+ \
       (user_session.episodes_cache.map {|ep| ep.title.gsub!('Episode ',''); ep}
       .map {|ep| ep.title = "- #{ep.title}" ;ep}
       .map {|ep| ep.id != user_session.current_episode_id ? ep.title : ep.title.gsub!(/^- \d+/, '▸ Playing'); ep}
@@ -148,7 +148,7 @@ private
     ep_item = user_session.current_episode
 
     if user_session.remaining_episode_count > 1
-      text = "#{user_session.remaining_episode_count} NEW Episodes\nSay 'Alexa, Next' to explore.\nOr 'Alexa, open the Odyssey Radio episode list'"
+      text = "#{user_session.remaining_episode_count} NEW Episodes\nSay 'Alexa, Next' to explore.\nOr 'Alexa, open the Odyssey episode list'"
     elsif user_session.remaining_episode_count == 1
       text = "1 NEW Episode: #{user_session.next_episode.title.gsub(/Episode \d+:/,'')}.\n\nSay 'Alexa, Next' to listen"
     else
