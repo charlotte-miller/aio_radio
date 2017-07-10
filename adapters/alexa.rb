@@ -49,6 +49,7 @@ class OdysseyRadioSkillController
       if user_session.looping?
         # enque user_session.current_episode
       end
+
     when "AudioPlayer.PlaybackFinished" then
       LOGGER.info input.type
       user_session.next_episode!
@@ -58,6 +59,7 @@ class OdysseyRadioSkillController
     when "SESSION_ENDED_REQUEST" then # it's over
     end
 
+    LOGGER.info input.type
     @response = output.build_response(session_end = true) #returns json
   end
 
