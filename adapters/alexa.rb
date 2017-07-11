@@ -15,7 +15,10 @@ class OdysseyRadioSkillController
     if AlexaRubykit.valid_alexa? post_body_hash
       @input = AlexaRubykit.build_request(post_body_hash)
     else
-      @input ||= OpenStruct.new(type:post_body_hash.dig('request','type'))
+      @input ||= OpenStruct.new({
+        type:  post_body_hash.dig('request','type'),
+        error: post_body_hash.dig('request','error')
+      })
     end
     @output = AlexaRubykit::Response.new
   end
@@ -30,7 +33,7 @@ class OdysseyRadioSkillController
       end
       play_episode
     when "INTENT_REQUEST"
-      LOGGER.info input.name
+      input_name = input.name
       case input.name
         when /^AMAZON/      then handle_amazon
         when "EpisodeTitle" then read_title
@@ -45,21 +48,23 @@ class OdysseyRadioSkillController
       end
 
     when "AudioPlayer.PlaybackNearlyFinished" then
-      LOGGER.info input.type
       if user_session.looping?
         # enque user_session.current_episode
       end
 
     when "AudioPlayer.PlaybackFinished" then
-      LOGGER.info input.type
       user_session.next_episode!
 
-    when /^AudioPlayer/ then LOGGER.info input.type
+    when 'AudioPlayer.PlaybackFailed' then
+      LOGGER.warn "#{input.error['type']} - #{input.error['message']}"
+      play_episode
+
+    # when /^AudioPlayer/ then
 
     when "SESSION_ENDED_REQUEST" then # it's over
     end
 
-    LOGGER.info input.type
+    LOGGER.info input_name || input.type
     @response = output.build_response(session_end = true) #returns json
   end
 
@@ -110,6 +115,11 @@ private
       when 'AMAZON.LoopOffIntent' then
         user_session.loop!(false) #single episode [default]
         output.add_speech "Continuous play disabled"
+
+      # Poorly supported
+      # when 'AMAZON.RepeatIntent' then
+      #   play_episode nil, [(user_session.current_offset-10_000), 0].max.to_i
+
     end
   end
 
