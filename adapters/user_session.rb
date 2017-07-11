@@ -12,6 +12,10 @@ class UserSession
     end
 
     me = new(user_id)
+    if me.updated_at && me.updated_at < me.local_today
+      me.next_episode!
+    end
+
     player = post_body_hash.dig('context', 'AudioPlayer')
     if player && player['token']
       proposed_offset, proposed_episode_id = [
@@ -73,6 +77,7 @@ class UserSession
 
   def current_episode_id; (data[:current_episode_id]).to_i  ;end
   def current_offset;     (data[:current_offset] || 0).to_i ;end
+  def updated_at;         (data[:updated_at] && Date.parse(data[:updated_at])) ;end
 
   def current_offset=(offsetInMilliseconds)
     update_user_record(current_offset:offsetInMilliseconds)
@@ -95,6 +100,10 @@ class UserSession
       .map {|ep| OpenStruct.new(ep)}
   end
 
+  def local_today
+    (DateTime.now - (7/24.0)).to_date
+  end
+
 private
 
   def data
@@ -104,9 +113,9 @@ private
   def update_user_record(overrides = {})
     updates = data.merge overrides
     return if data == updates
-    updates.merge! updated_at:Date.today.to_s
+    updates.merge! updated_at:local_today.to_s
     LOGGER.info updates
-    CACHE.set(cache_key, Oj.dump(updates), 432000) #5.days
+    CACHE.set(cache_key, Oj.dump(updates), 604800) #7.days
   end
 
   def traverse_episode_list(direction=1) #-1
