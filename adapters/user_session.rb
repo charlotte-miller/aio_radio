@@ -1,9 +1,10 @@
 require './config/env'
 
 class UserSession
-  attr_reader :cache_key, :new_user
+  attr_reader :cache_key, :new_user, :post_body_hash
 
   def self.from_post(post_body_hash)
+    @post_body_hash = post_body_hash
     user_id = unless post_body_hash['session'].nil?
       post_body_hash.dig('session','user_id')
     else

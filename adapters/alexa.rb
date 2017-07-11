@@ -32,6 +32,8 @@ class OdysseyRadioSkillController
         read_episode_loading
       end
       play_episode
+      add_episode_card
+
     when "INTENT_REQUEST"
       input_name = input.name
       case input.name
@@ -90,6 +92,7 @@ private
         if user_session.next_episode
           user_session.next_episode!
           play_episode
+          add_episode_card
         else
           output.add_speech "There are no more episodes. Check back tomorrow."
         end
@@ -98,6 +101,7 @@ private
         if user_session.prev_episode
           user_session.prev_episode!
           play_episode
+          add_episode_card
         else
           output.add_speech "That's as far back as I can go."
         end
@@ -106,6 +110,7 @@ private
         random = user_session.random_episode
         output.add_speech "Shuffling Episodes... Playing #{random.title}"
         play_episode random.id, 0
+        add_episode_card
 
       when 'AMAZON.LoopOnIntent' then
         user_session.loop!
@@ -157,6 +162,11 @@ private
     user_session.current_offset  = offsetInMilliseconds if offsetInMilliseconds
 
     ep_item = user_session.current_episode
+    output.add_audio_url ep_item.media, "episode-#{ep_item.id}", user_session.current_offset
+  end
+
+  def add_episode_card
+    ep_item = user_session.current_episode
 
     if user_session.remaining_episode_count > 1
       text = "#{user_session.remaining_episode_count} NEW Episodes\nSay 'Alexa, Next' to explore.\nOr 'Alexa, open the Odyssey episode list'"
@@ -166,7 +176,6 @@ private
       text = "Last Episode.\nSay 'Alexa, Previous' to re-listen to your favorites.\nNEW Episodes Every Week"
     end
 
-    output.add_audio_url ep_item.media, "episode-#{ep_item.id}", user_session.current_offset
     output.add_hash_card( {
       :type => "Standard",
       :title => ep_item.title.sub('Episode ',''),
