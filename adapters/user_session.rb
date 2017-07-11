@@ -12,10 +12,13 @@ class UserSession
 
     me = new(user_id)
     player = post_body_hash.dig('context', 'AudioPlayer')
-    proposed_offset, proposed_episode_id = [
-      (player['offsetInMilliseconds'].to_i || 0),
-      player['token'].gsub(/\D/,'').to_i
-    ]
+
+    if player['token']
+      proposed_offset, proposed_episode_id = [
+        (player['offsetInMilliseconds'].to_i || 0),
+        player['token'].gsub(/\D/,'').to_i
+      ]
+    end
 
     same_episode = me.current_episode_id == proposed_episode_id
     same_offset =  me.current_offset == proposed_offset
