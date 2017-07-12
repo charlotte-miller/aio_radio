@@ -143,7 +143,7 @@ private
       .map {|ep| ep.title = "- #{ep.title}" ;ep}
       .map {|ep| ep.id != user_session.current_episode_id ? ep.title : ep.title.gsub!(/^- \d+/, '▸ Playing'); ep}
       .map(&:title)
-      .join("\n")+"\n \nSay 'Alexa Shuffle' for a random episode\nSay 'Alexa Loop' for continuous play.")
+      .join("\n")+"\n \nSay 'Alexa Shuffle' for a random episode\nSay 'Alexa Loop (ON | OFF)' for continuous play.")
     output.add_speech("Check the Alexa app for available episodes, or say 'Next' to explore.") unless silent
     output.add_hash_card( {
       :type => "Standard",
