@@ -24,6 +24,9 @@ class OdysseyRadioSkillController
   end
 
   def respond
+    input_name = input.respond_to?(:name) && input.name
+    LOGGER.info input_name || input.type
+
     case input.type
     when "LAUNCH_REQUEST"
       if user_session.new_user
@@ -35,7 +38,6 @@ class OdysseyRadioSkillController
       add_episode_card
 
     when "INTENT_REQUEST"
-      input_name = input.name
       case input.name
         when /^AMAZON/      then handle_amazon
         when "EpisodeTitle" then read_title
@@ -50,23 +52,19 @@ class OdysseyRadioSkillController
       end
 
     when "AudioPlayer.PlaybackNearlyFinished" then
-      if user_session.looping?
-        # enque user_session.current_episode
-      end
+      # if user_session.looping? && user_session.next_episode
+        play_episode user_session.next_episode, 0, {'playBehavior'=> 'REPLACE_ENQUEUED'}
+      # end
 
     when "AudioPlayer.PlaybackFinished" then
       user_session.next_episode!
 
     when 'AudioPlayer.PlaybackFailed' then
       LOGGER.warn "#{input.error['type']} - #{input.error['message']}"
-      play_episode
-
-    # when /^AudioPlayer/ then
 
     when "SESSION_ENDED_REQUEST" then # it's over
     end
 
-    LOGGER.info input_name || input.type
     @response = output.build_response(session_end = true) #returns json
   end
 
@@ -81,6 +79,8 @@ private
         play_episode
 
       when 'AMAZON.StartOverIntent' then
+        # output.add_speech "Resetting User"
+        # user_session.reset!
         output.add_speech "Restarting the Episode"
         play_episode nil, 0
 
@@ -157,12 +157,12 @@ private
   end
 
   # accepts episode_obj, episode_id, nil (for current_episode)
-  def play_episode(episode=nil, offsetInMilliseconds=nil)
+  def play_episode(episode=nil, offsetInMilliseconds=nil, options={})
     user_session.current_episode = episode              if episode
     user_session.current_offset  = offsetInMilliseconds if offsetInMilliseconds
 
     ep_item = user_session.current_episode
-    output.add_audio_url ep_item.media, "episode-#{ep_item.id}", user_session.current_offset
+    output.add_audio_url ep_item.media, "episode-#{ep_item.id}", user_session.current_offset, options
   end
 
   def add_episode_card
