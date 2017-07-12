@@ -6,7 +6,7 @@ class UserSession
   def self.from_post(post_body_hash)
     @post_body_hash = post_body_hash
     user_id = unless post_body_hash['session'].nil?
-      post_body_hash.dig('session','user_id')
+      post_body_hash.dig('session', 'user','userId')
     else
       post_body_hash.dig('context','System','user','userId')
     end
@@ -39,6 +39,7 @@ class UserSession
   end
 
   def initialize(amazon_userId)
+    raise ArgumentError.new('amazon_userId required') unless amazon_userId
     @cache_key = "user_#{amazon_userId}"
     @new_user ||= self.send(:data).empty?
   end
@@ -121,7 +122,7 @@ private
   def traverse_episode_list(direction=1) #-1
     episode_ids = episodes_cache.map(&:id)
     current_index = episode_ids.index current_episode_id
-    return false unless (0...episode_ids.length).include? current_index + direction
+    return false unless current_index && (0...episode_ids.length).include?( current_index + direction )
     episodes_cache[current_index+direction]
   end
 end

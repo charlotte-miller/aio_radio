@@ -52,9 +52,9 @@ class OdysseyRadioSkillController
       end
 
     when "AudioPlayer.PlaybackNearlyFinished" then
-      # if user_session.looping? && user_session.next_episode
+      if user_session.looping? && user_session.next_episode
         play_episode user_session.next_episode, 0, {'playBehavior'=> 'REPLACE_ENQUEUED'}
-      # end
+      end
 
     when "AudioPlayer.PlaybackFinished" then
       user_session.next_episode!

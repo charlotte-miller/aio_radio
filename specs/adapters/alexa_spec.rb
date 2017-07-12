@@ -1,6 +1,6 @@
 require 'rspec'
 require './adapters/alexa'
 
-RSpec.describe Alexa do
+RSpec.describe OdysseyRadioSkillController do
 
 end
