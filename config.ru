@@ -1,7 +1,10 @@
-require './config/env'
-require 'rack/cors'
 require 'rack/reverse_proxy'
+require 'rack/cors'
+require 'rack/ssl'
+require './config/env'
 require './server'
+
+use Rack::SSL
 
 use Rack::ShowExceptions if dev?
 
