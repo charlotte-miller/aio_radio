@@ -3,45 +3,13 @@ require './config/env'
 class UserSession
   attr_reader :cache_key, :new_user, :post_body_hash
 
-  def self.from_post(post_body_hash)
-    @post_body_hash = post_body_hash
-    user_id = unless post_body_hash['session'].nil?
-      post_body_hash.dig('session', 'user','userId')
-    else
-      post_body_hash.dig('context','System','user','userId')
-    end
-
-    me = new(user_id)
-    if me.updated_at && me.updated_at < me.local_today
-      me.next_episode!
-    end
-
-    player = post_body_hash.dig('context', 'AudioPlayer')
-    if player && player['token']
-      proposed_offset, proposed_episode_id = [
-        (player['offsetInMilliseconds'].to_i || 0),
-        player['token'].gsub(/\D/,'').to_i
-      ]
-    end
-
-    same_episode = me.current_episode_id == proposed_episode_id
-    same_offset =  me.current_offset == proposed_offset
-
-    unless same_episode && same_offset
-      unless same_episode
-        me.current_episode= proposed_episode_id
-      else
-        me.current_offset= proposed_offset
-      end
-    end
-
-    return me
-  end
-
-  def initialize(amazon_userId)
-    raise ArgumentError.new('amazon_userId required') unless amazon_userId
-    @cache_key = "user_#{amazon_userId}"
-    @new_user ||= self.send(:data).empty?
+  def initialize(post_body)
+    @post_body_hash = post_body.is_a?(Hash) ? post_body : Oj.load(post_body)
+    raise ArgumentError.new('amazon_user_id required') unless amazon_user_id
+    @cache_key = "user_#{amazon_user_id}"
+    @new_user ||= data.empty?
+    advance_stale_episode
+    update_player_data
   end
 
   def current_episode
@@ -51,10 +19,12 @@ class UserSession
   end
 
   def current_episode=(episode)
-    episode_id = episode      if episode.is_a? Integer
-    episode_id = episode.to_i if episode.is_a? String
-    episode_id = episode.id   if episode.is_a? OpenStruct
-    episode_id = episode[:id] if episode.is_a? Hash
+    episode = episodes_cache.first if episode.is_a? FalseClass
+    episode_id = episode           if episode.is_a? Integer
+    episode_id = episode.to_i      if episode.is_a? String
+    episode_id = episode.id        if episode.is_a? OpenStruct
+    episode_id = episode[:id]      if episode.is_a? Hash
+    raise ArgumentError.new('current_episode argument not supported') unless episode_id.is_a? Integer
 
     update_user_record({
       current_episode_id: episode_id,
@@ -101,9 +71,6 @@ class UserSession
       .map {|ep| OpenStruct.new(ep)}
   end
 
-  def local_today
-    (DateTime.now - (7/24.0)).to_date
-  end
 
 private
 
@@ -124,5 +91,46 @@ private
     current_index = episode_ids.index current_episode_id
     return false unless current_index && (0...episode_ids.length).include?( current_index + direction )
     episodes_cache[current_index+direction]
+  end
+
+  def local_today
+    (DateTime.now - (7/24.0)).to_date
+  end
+
+  def amazon_user_id
+    unless post_body_hash['session'].nil?
+      post_body_hash.dig('session', 'user','userId')
+    else
+      post_body_hash.dig('context','System','user','userId')
+    end
+  end
+
+  def advance_stale_episode
+    if updated_at && updated_at < local_today
+      unless current_offset == 0
+        next_episode!
+      end
+    end
+  end
+
+  def update_player_data
+    player = post_body_hash.dig('context', 'AudioPlayer')
+    if player && player['token']
+      proposed_offset, proposed_episode_id = [
+        (player['offsetInMilliseconds'].to_i || 0),
+        player['token'].gsub(/\D/,'').to_i
+      ]
+    end
+
+    same_episode = current_episode_id == proposed_episode_id
+    same_offset =  current_offset == proposed_offset
+
+    unless same_episode && same_offset
+      unless same_episode
+        self.current_episode= proposed_episode_id
+      else
+        self.current_offset= proposed_offset
+      end
+    end
   end
 end

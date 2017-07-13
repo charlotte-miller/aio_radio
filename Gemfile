@@ -20,4 +20,6 @@ group 'development' do
   gem 'thin'
   gem 'pry'
   gem 'rspec'
+  gem 'timecop'
+  gem 'guard-rspec'
 end

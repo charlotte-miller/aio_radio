@@ -10,7 +10,7 @@ class OdysseyRadioSkillController
   def initialize(post_body)
     raise ArgumentError.new("Post Body must be valid JSON") if post_body == ''
     post_body_hash = Oj.load(post_body) if post_body.is_a? String
-    @user_session = UserSession.from_post post_body_hash
+    @user_session = UserSession.new post_body_hash
 
     if AlexaRubykit.valid_alexa? post_body_hash
       @input = AlexaRubykit.build_request(post_body_hash)
@@ -79,8 +79,6 @@ private
         play_episode
 
       when 'AMAZON.StartOverIntent' then
-        # output.add_speech "Resetting User"
-        # user_session.reset!
         output.add_speech "Restarting the Episode"
         play_episode nil, 0
 
