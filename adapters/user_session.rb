@@ -63,6 +63,7 @@ class UserSession
   end
 
   def reset!
+    @data = nil
     CACHE.set(cache_key, '{}', 432000)
   end
 
@@ -75,7 +76,7 @@ class UserSession
 private
 
   def data
-    Oj.load( CACHE.get(cache_key) || '{}' )
+    @data ||= Oj.load( CACHE.get(cache_key) || '{}' )
   end
 
   def update_user_record(overrides = {})
@@ -83,6 +84,7 @@ private
     return if data == updates
     updates.merge! updated_at:local_today.to_s
     LOGGER.info updates
+    @data = nil
     CACHE.set(cache_key, Oj.dump(updates), 604800) #7.days
   end
 
