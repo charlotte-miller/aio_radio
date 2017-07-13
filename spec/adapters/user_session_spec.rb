@@ -47,10 +47,11 @@ RSpec.describe UserSession do
   end
 
   describe '#loop!(is=true)' do
-    it "text" do
+    it "toggles .looping?" do
       subject.loop!
-      subject.next_episode!
       expect(subject.looping?).to be true
+      subject.loop! false
+      expect(subject.looping?).to be false
     end
   end
 
