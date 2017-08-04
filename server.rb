@@ -14,7 +14,7 @@ class Server
       reply = Oj.dump([
         error: e.message,
         # backtrace: e.backtrace,
-        data: Oj.load( CACHE.get('episodes') || '[]'),
+        data: CACHE.episodes,
       ])
     end
     [200, {"Content-Type" => "text/json"}, [reply]]

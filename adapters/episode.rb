@@ -9,7 +9,7 @@ class Episode
   def self.update_radio
     current_episodes = new.get_episodes
     if current_episodes.length >=6
-      CACHE.set 'episodes', Oj.dump(current_episodes)
+      CACHE.episodes= current_episodes
     else
       LOGGER.warn "NO UPDATES"
     end
@@ -17,7 +17,7 @@ class Episode
 
   def initialize
     @domain = 'http://www.focusonthefamily.com'
-    @current_cache =  Oj.load(CACHE.get 'episodes')
+    @current_cache =  CACHE.episodes
     @currently_cached_ids = @current_cache.map {|ep| ep[:id]}
   end
 

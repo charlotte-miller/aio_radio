@@ -68,8 +68,7 @@ class UserSession
   end
 
   def episodes_cache
-    @episodes_cache ||= Oj.load( CACHE.get('episodes') || '[]')
-      .map {|ep| OpenStruct.new(ep)}
+    @episodes_cache ||= CACHE.episodes.map {|ep| OpenStruct.new(ep)}
   end
 
 
